@@ -1,9 +1,11 @@
 import sys
 import pygame
+from pygame import image
 from bullet import Bullet
 from pygame.constants import KEYDOWN, KEYUP
 from Settings import Settings
 from ship import Ship
+from alien import Alien
 # class LogInConsole():
 #     def log():
 #         print
@@ -20,6 +22,9 @@ class AlienInvasion:
         
         self.ship=Ship(self)
         pygame.display.set_caption("Alien Invasion")
+        
+        self.aliens=pygame.sprite.Group()
+        self._create_fleet()
         
     def run_game(self):
         """Запуск основного цикла игры"""
@@ -65,13 +70,30 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom<=0:
                 self.bullets.remove(bullet)
+    def _create_fleet(self):
+        """Создание флота вторжения"""
+        #Создание пришельца и вычисляет количество пришельцов в ряду
+        alien=Alien(self)
+        alien_width=alien.rect.width
+        avaible_space_x=self.setting.screen_width-(2*alien_width)
+        numbers_of_aliens=avaible_space_x//(2*alien_width)
+
+        for alien_number in range(numbers_of_aliens):
+               self._create_alien(alien_number)
+    def _create_alien(self,alien_num):
+        alien=Alien(self)
+        alien_width=alien.rect.width
+        alien.x=alien_width+2*alien_width*alien_num
+        alien.rect.x=alien.x
+        self.aliens.add(alien)
     def _update_screen(self):
-        pygame.display.flip()
+        
         self.screen.fill(self.setting.bg_color)
         self.ship.blitme()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        
+        self.aliens.draw(self.screen)
+        pygame.display.flip()
         # print(len(self.bullets))
 if __name__=='__main__':
     ai=AlienInvasion()
