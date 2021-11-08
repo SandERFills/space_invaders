@@ -29,6 +29,6 @@ class Ship():
         if self.moving_left and self.rect.left>0:
             self.x-=self.settings.ship_speed
         self.rect.x=self.x
-        # print(f"позиция по Х = {self.rect.x}")
-        # print(f"Позиция по Y = {self.rect.y}")
+        # print(f"позиция по Х = {self.rect.x} Позиция по Y = {self.rect.y}")
+       
         
