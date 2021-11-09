@@ -1,6 +1,8 @@
 import sys
 import pygame
 from pygame import image
+from time import sleep
+from game_stats import GameStats
 from bullet import Bullet
 from pygame.constants import KEYDOWN, KEYUP
 from Settings import Settings
@@ -24,6 +26,7 @@ class AlienInvasion:
         self.setting.screen_width=self.screen.get_rect().width
         self.stars=pygame.sprite.Group()
         self.ship=Ship(self)
+        self.stats=GameStats(self)
         pygame.display.set_caption("Alien Invasion")
         
         self.aliens=pygame.sprite.Group()
@@ -80,10 +83,35 @@ class AlienInvasion:
         for bullet in self.bullets.copy():
             if bullet.rect.bottom<=0:
                 self.bullets.remove(bullet)
+        # self._check_bullet_collision()
+    # def _check_bullet_collision(self):
+    #     collisions=pygame.sprite.groupcollide(self.bullets,self.aliens,True,True)
+    #     if not self.aliens:
+    #         self.bullets.empty()
+    #         self._create_fleet()
     def _update_aliens(self):
         self.aliens.update()
+        collisions=pygame.sprite.groupcollide(self.bullets,self.aliens,True,True)
+        if not self.aliens:
+            self.bullets.empty()
+            self._create_fleet()
+        if pygame.sprite.spritecollideany(self.ship,self.aliens):
+            self._ship_hit()
+            print("Корабль уничтожен!")
     def _update_eyes_drop(self):
         self.eyedrops.update()
+    def _ship_hit(self):
+        """Обрабатывает столкновение корабля с пришельцем"""
+        self.stats.ships_left-=1
+        #очистка списков пришельцев и снарядов
+        self.aliens.empty()
+        self.bullets.empty()
+        #Создание вого флота и размещение корабля в центр
+        self._create_fleet()
+        self.ship.center_ship()
+
+        #Пауза 
+        sleep(0.5)
     def _create_fleet(self):
         """Создание флота вторжения"""
         #Создание пришельца и вычисляет количество пришельцов в ряду

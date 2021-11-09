@@ -30,5 +30,8 @@ class Ship():
             self.x-=self.settings.ship_speed
         self.rect.x=self.x
         # print(f"позиция по Х = {self.rect.x} Позиция по Y = {self.rect.y}")
+    def center_ship(self):
+        self.rect.midbottom=self.screen_rect.midbottom
+        self.x=float(self.rect.x)
        
         
