@@ -12,15 +12,12 @@ class Ship():
         self.rect=self.image.get_rect()
         #Каждый новый корабль появляется у нижнего края  экрана
         self.x=float(self.rect.x)
-        self.rect.midbottom=self.screen.get_rect().midbottom
+        self.rect.midbottom=self.screen_rect.midbottom
         #флаг перемещения
         self.moving_right=False
         self.moving_left=False
         #
         self.settings=ai_game.setting
-    def blitme(self):
-        """рисует корабль в текущей позиции"""
-        self.screen.blit(self.image,self.rect)
     
     def update(self):
         """Обновляет позицию корабля с учётом флага"""
@@ -33,5 +30,9 @@ class Ship():
     def center_ship(self):
         self.rect.midbottom=self.screen_rect.midbottom
         self.x=float(self.rect.x)
+    def blitme(self):
+        """рисует корабль в текущей позиции"""
+        self.screen.blit(self.image,self.rect)
+        
        
         

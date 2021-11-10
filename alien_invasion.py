@@ -9,8 +9,9 @@ from Settings import Settings
 from ship import Ship
 from alien import Alien
 from star import Star
-from random import randint
+from random import randint, shuffle
 from eyedrop import Eyedrop
+from button import Button
 # class LogInConsole():
 #     def log():
 #         print
@@ -21,40 +22,57 @@ class AlienInvasion:
         pygame.init()
         self.setting=Settings()
         self.bullets=pygame.sprite.Group()
-        self.screen=pygame.display.set_mode((0,0))
+        self.screen=pygame.display.set_mode((1280,800))
         self.setting.screen_height=self.screen.get_rect().height
         self.setting.screen_width=self.screen.get_rect().width
         self.stars=pygame.sprite.Group()
         self.ship=Ship(self)
+        self.ship.center_ship()
         self.stats=GameStats(self)
         pygame.display.set_caption("Alien Invasion")
-        
         self.aliens=pygame.sprite.Group()
         self.eyedrops=pygame.sprite.Group()
         self._create_fleet()
         self._creat_star_sky()
         self._create_eyedrops()
+        self.play_button=Button(self,"Play")
     def run_game(self):
         """Запуск основного цикла игры"""
         while True:
             self._check_event()
-            self.ship.update()
-            self._update_bullets()
-            self._update_aliens()
-            self._check_fleet_adges()
-            self._update_eyes_drop()
-            print(f"num of eyedrop {len(self.eyedrops)}")
-            self._check_eyedrop_edge()
+            if self.stats.game_active:
+                self.ship.update()
+                
+                self._update_bullets()
+                self._update_aliens()
+                self._check_fleet_adges()
+                self._update_eyes_drop()
+                print(f"num of eyedrop {len(self.eyedrops)}")
+                self._check_eyedrop_edge()
             #Отображение последнего отрисованного экрана
             self._update_screen()
-        
     def _check_event(self):
+        """Обрабатывает нажатие клавиш и события мыши"""
         for event in pygame.event.get():
             if event.type==pygame.QUIT :
                 sys.exit()
-            
+            elif event.type==pygame.MOUSEBUTTONDOWN:
+                mouse_pos=pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
             self._check_keydown_events(event)
             self._check_keyup_events(event)
+    def _check_play_button(self,mouse_pos):
+        """Запускает новую игру при нажатии кнопки"""
+        button_clicked=self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and self.play_button.rect.collidepoint(mouse_pos):
+            self.stats.reset_stats()
+            self.stats.game_active=True
+
+            # self.aliens.empty()
+            # self.bullets.empty()
+
+            # self._create_fleet()
+            # self.ship.center_ship()
     def _check_keydown_events(self,event):
         """Реагирует на нажатие клавиши"""
         if event.type==pygame.KEYDOWN:
@@ -66,6 +84,7 @@ class AlienInvasion:
                 sys.exit()
             elif event.key==pygame.K_SPACE:
                 self._fire_bullet()
+            
     def _check_keyup_events(self,event):
         """Реагирует на отпускание клавиши"""
         if event.type==pygame.KEYUP:
@@ -95,21 +114,25 @@ class AlienInvasion:
         if not self.aliens:
             self.bullets.empty()
             self._create_fleet()
+            sleep(0.5)
         if pygame.sprite.spritecollideany(self.ship,self.aliens):
             self._ship_hit()
             print("Корабль уничтожен!")
+        self._check_aliens_bottom()
     def _update_eyes_drop(self):
         self.eyedrops.update()
     def _ship_hit(self):
         """Обрабатывает столкновение корабля с пришельцем"""
-        self.stats.ships_left-=1
-        #очистка списков пришельцев и снарядов
-        self.aliens.empty()
-        self.bullets.empty()
-        #Создание вого флота и размещение корабля в центр
-        self._create_fleet()
-        self.ship.center_ship()
-
+        if self.stats.ships_left>0:    
+            self.stats.ships_left-=1
+            #очистка списков пришельцев и снарядов
+            self.aliens.empty()
+            self.bullets.empty()
+            #Создание вого флота и размещение корабля в центр
+            self._create_fleet()
+            self.ship.center_ship()
+        else:
+            self.stats.game_active=False
         #Пауза 
         sleep(0.5)
     def _create_fleet(self):
@@ -146,6 +169,14 @@ class AlienInvasion:
         for star_rows in range(rand_number):
             for star_number in range(rand_number):
                 self._create_star(star_number,star_rows)
+    def _check_aliens_bottom(self):
+        """Проверяет, добрались ли пришельцы до нижнего экрана"""
+        screen_rect=self.screen.get_rect()
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= screen_rect.bottom:
+                #проиисходит тоже ,что при столкновении с кораблём
+                self._ship_hit()
+                break
     def _create_star(self,star_num,row_num):
         star=Star(self)
         star_width,star_height=star.rect.size
@@ -179,12 +210,16 @@ class AlienInvasion:
                 break
     def _update_screen(self):
         self.screen.fill(self.setting.bg_color)
+        self.stars.draw(self.screen)
         self.ship.blitme()
+        
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
-        self.stars.draw(self.screen)
+        
         self.aliens.draw(self.screen)
         self.eyedrops.draw(self.screen)
+        if not self.stats.game_active:
+            self.play_button.draw_button()
         pygame.display.flip()
         # print(len(self.bullets))
 if __name__=='__main__':
