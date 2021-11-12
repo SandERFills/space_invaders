@@ -12,9 +12,6 @@ from star import Star
 from random import randint, shuffle
 from eyedrop import Eyedrop
 from button import Button
-# class LogInConsole():
-#     def log():
-#         print
 class AlienInvasion:
     """Класс для управления ресурсами и поведением игры"""
     def __init__(self):
@@ -42,12 +39,11 @@ class AlienInvasion:
             self._check_event()
             if self.stats.game_active:
                 self.ship.update()
-                
                 self._update_bullets()
                 self._update_aliens()
                 self._check_fleet_adges()
                 self._update_eyes_drop()
-                print(f"num of eyedrop {len(self.eyedrops)}")
+                # print(f"num of eyedrop {len(self.eyedrops)}")
                 self._check_eyedrop_edge()
             #Отображение последнего отрисованного экрана
             self._update_screen()
@@ -56,23 +52,12 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type==pygame.QUIT :
                 sys.exit()
-            elif event.type==pygame.MOUSEBUTTONDOWN:
+            if event.type==pygame.MOUSEBUTTONDOWN:
                 mouse_pos=pygame.mouse.get_pos()
                 self._check_play_button(mouse_pos)
             self._check_keydown_events(event)
             self._check_keyup_events(event)
-    def _check_play_button(self,mouse_pos):
-        """Запускает новую игру при нажатии кнопки"""
-        button_clicked=self.play_button.rect.collidepoint(mouse_pos)
-        if button_clicked and self.play_button.rect.collidepoint(mouse_pos):
-            self.stats.reset_stats()
-            self.stats.game_active=True
 
-            # self.aliens.empty()
-            # self.bullets.empty()
-
-            # self._create_fleet()
-            # self.ship.center_ship()
     def _check_keydown_events(self,event):
         """Реагирует на нажатие клавиши"""
         if event.type==pygame.KEYDOWN:
@@ -92,6 +77,20 @@ class AlienInvasion:
                 self.ship.moving_right=False
             elif event.key==pygame.K_LEFT:
                 self.ship.moving_left=False
+                
+    def _check_play_button(self,mouse_pos):
+        """Запускает новую игру при нажатии кнопки"""
+        button_clicked=self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.stats.game_active:
+            pygame.mouse.set_visible(False)
+            self.stats.reset_stats()
+            self.stats.game_active=True
+
+            self.aliens.empty()
+            self.bullets.empty()
+
+            self._create_fleet()
+            self.ship.center_ship()    
     def _fire_bullet(self):
         """Создание нового снаряда в включение его в группу bullets"""
         if len(self.bullets)<self.setting.bullet_allowed:
@@ -133,6 +132,7 @@ class AlienInvasion:
             self.ship.center_ship()
         else:
             self.stats.game_active=False
+            pygame.mouse.set_visible(True)
         #Пауза 
         sleep(0.5)
     def _create_fleet(self):
