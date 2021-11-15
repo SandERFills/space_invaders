@@ -12,6 +12,13 @@ from star import Star
 from random import randint, shuffle
 from eyedrop import Eyedrop
 from button import Button
+<<<<<<< HEAD
+from scoreboard import Scoreboard
+# class LogInConsole():
+#     def log():
+#         print
+=======
+>>>>>>> 0fddc30fa357ab5317a6d8863f366a38b8400d2b
 class AlienInvasion:
     """Класс для управления ресурсами и поведением игры"""
     def __init__(self):
@@ -24,6 +31,7 @@ class AlienInvasion:
         self.setting.screen_width=self.screen.get_rect().width
         self.stars=pygame.sprite.Group()
         self.ship=Ship(self)
+        
         self.ship.center_ship()
         self.stats=GameStats(self)
         pygame.display.set_caption("Alien Invasion")
@@ -33,6 +41,7 @@ class AlienInvasion:
         self._creat_star_sky()
         self._create_eyedrops()
         self.play_button=Button(self,"Play")
+        self.sb=Scoreboard(self)
     def run_game(self):
         """Запуск основного цикла игры"""
         while True:
@@ -212,7 +221,7 @@ class AlienInvasion:
         self.screen.fill(self.setting.bg_color)
         self.stars.draw(self.screen)
         self.ship.blitme()
-        
+        self.sb.show_score()
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         
