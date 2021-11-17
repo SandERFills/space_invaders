@@ -5,7 +5,7 @@ class GameStats():
         self.reset_stats()
         #Игра запускается в активном состоянии
         self.game_active=False
-    
+        self.hight_score=0
 
     def reset_stats(self):
         """Инициализация статистики и"""
