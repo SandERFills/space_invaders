@@ -94,6 +94,8 @@ class AlienInvasion:
             self.stats.reset_stats()
             self.stats.game_active=True
             self.sb.prep_score()
+            self.sb.prep_lvl()
+            self.sb.prep_ships()
 
             self.aliens.empty()
             self.bullets.empty()
@@ -126,12 +128,14 @@ class AlienInvasion:
                 self.stats.score+=self.setting.alien_points*len(aliens)
             
             self.sb.prep_score()
-            
+            self.sb.check_high_score()
         if not self.aliens:
             self.bullets.empty()
             self._create_fleet()
             sleep(0.5)
             self.setting.icrease_speed()
+            self.stats.level+=1
+            self.sb.prep_lvl()
         if pygame.sprite.spritecollideany(self.ship,self.aliens):
             self._ship_hit()
             print("Корабль уничтожен!")
@@ -142,6 +146,7 @@ class AlienInvasion:
         """Обрабатывает столкновение корабля с пришельцем"""
         if self.stats.ships_left>0:    
             self.stats.ships_left-=1
+            self.sb.prep_ships()
             #очистка списков пришельцев и снарядов
             self.aliens.empty()
             self.bullets.empty()
@@ -149,6 +154,7 @@ class AlienInvasion:
             self._create_fleet()
             self.ship.center_ship()
         else:
+            self.setting.initialize_dynamic_setting()
             self.stats.game_active=False
             pygame.mouse.set_visible(True)
         #Пауза 
